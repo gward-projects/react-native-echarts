@@ -1,8 +1,8 @@
 {
   "name": "react-native-echarts",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Echarts for React Native.",
-  "main": "index.ts",
+  "main": "src/index.tsx",
   "packageManager": "yarn@4.13.0",
   "files": [
     "src",
