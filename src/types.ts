@@ -53,7 +53,6 @@ export type CommonChartProps = BaseChartProps & GestureProps;
 export type RNGestureHandlerOptions = {
   panThrottleMs?: number;
   pinchThrottleMs?: number;
-  longPressMs?: number;
   onGestureActiveChange?: (active: boolean) => void;
 };
 

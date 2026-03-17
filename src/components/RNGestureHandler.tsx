@@ -16,14 +16,12 @@ export const getDefaultPanRNGesture = (
   options?: RNGestureHandlerOptions
 ) => {
   const panThrottleMs = options?.panThrottleMs ?? 50;
-  const longPressMs = options?.longPressMs ?? 0;
   const onGestureActiveChange = options?.onGestureActiveChange;
 
   return Gesture.Pan()
     .runOnJS(true)
     .withTestId("RNGH-pan-handler")
     .maxPointers(1)
-    .activateAfterLongPress(longPressMs)
     .onBegin((e) => {
       onGestureActiveChange?.(true);
       dispatchEvents(["mousedown", "mousemove"], e);
