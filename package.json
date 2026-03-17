@@ -1,27 +1,9 @@
 {
-  "name": "@wuba/react-native-echarts",
+  "name": "react-native-echarts",
   "version": "3.0.1",
   "description": "Echarts for React Native.",
-  "main": "./lib/module/index.js",
-  "types": "./lib/typescript/src/index.d.ts",
-  "exports": {
-    ".": {
-      "source": "./src/index.tsx",
-      "types": "./lib/typescript/src/index.d.ts",
-      "default": "./lib/module/index.js"
-    },
-    "./skiaChart": {
-      "source": "./src/skia/skiaChart.tsx",
-      "types": "./lib/typescript/src/skia/skiaChart.d.ts",
-      "default": "./lib/module/skia/skiaChart.js"
-    },
-    "./svgChart": {
-      "source": "./src/svg/svgChart.tsx",
-      "types": "./lib/typescript/src/svg/svgChart.d.ts",
-      "default": "./lib/module/svg/svgChart.js"
-    },
-    "./package.json": "./package.json"
-  },
+  "main": "index.ts",
+  "packageManager": "yarn@4.13.0",
   "files": [
     "src",
     "lib",
@@ -44,10 +26,8 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace @wuba/react-native-echarts-example",
     "test": "jest",
-    "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "type-check": "tsc --noEmit",
     "clean": "del-cli lib",
     "prepare": "bob build",
     "release": "release-it --only-version"
@@ -57,25 +37,8 @@
     "ios",
     "android"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+http://github.com/wuba/react-native-echarts.git"
-  },
-  "author": "wuba <chenzhiqing01@58.com> (http://github.com/wuba/)",
-  "license": "MIT",
-  "bugs": {
-    "url": "http://github.com/wuba/react-native-echarts/issues"
-  },
-  "homepage": "http://github.com/wuba/react-native-echarts#readme",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
-    "@eslint/compat": "^1.3.2",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.35.0",
-    "@evilmartians/lefthook": "^1.12.3",
     "@react-native/babel-preset": "0.81.1",
     "@react-native/eslint-config": "^0.81.1",
     "@release-it/conventional-changelog": "^10.0.1",
@@ -87,11 +50,7 @@
     "commitlint": "^19.8.1",
     "del-cli": "^6.0.0",
     "echarts": "^6.0.0",
-    "eslint": "^9.35.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^29.7.0",
-    "prettier": "^3.6.2",
     "react": "19.1.0",
     "react-native": "0.81.4",
     "react-native-builder-bob": "^0.40.13",
@@ -128,68 +87,6 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@3.6.1",
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "github": {
-      "release": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": {
-          "name": "angular"
-        }
-      }
-    }
-  },
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      [
-        "module",
-        {
-          "esm": true
-        }
-      ],
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build.json"
-        }
-      ]
-    ]
-  },
-  "create-react-native-library": {
-    "languages": "js",
-    "type": "library",
-    "version": "0.54.3"
-  },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.6",
     "entities": "^4.4.0"

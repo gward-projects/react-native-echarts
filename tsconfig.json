@@ -2,18 +2,19 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@wuba/react-native-echarts": ["./src/index"]
+      "react-native-echarts": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "customConditions": ["react-native-strict-api"],
+    "noEmit": true,
+    "outDir": "dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
