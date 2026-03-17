@@ -1,6 +1,7 @@
-import { memo, forwardRef } from 'react';
+import { forwardRef, memo } from "react";
 
-interface ChartProps {}
+interface ChartProps {
+}
 
 function ChartComponent(_props: ChartProps, ref?: any) {
   return <div ref={ref} />;

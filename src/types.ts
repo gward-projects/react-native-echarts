@@ -1,22 +1,16 @@
-import type { ViewStyle } from 'react-native';
+import type { ViewStyle } from "react-native";
 
-import type {
-  ComposedGesture,
-  GestureType,
-  PanGesture,
-  PinchGesture,
-  TapGesture,
-} from 'react-native-gesture-handler';
+import type { ComposedGesture, GestureType, PanGesture, PinchGesture, TapGesture } from "react-native-gesture-handler";
 
 export type HandlerName =
-  | 'click'
-  | 'dblclick'
-  | 'mousewheel'
-  | 'mouseout'
-  | 'mouseup'
-  | 'mousedown'
-  | 'mousemove'
-  | 'contextmenu';
+  | "click"
+  | "dblclick"
+  | "mousewheel"
+  | "mouseout"
+  | "mouseup"
+  | "mousedown"
+  | "mousemove"
+  | "contextmenu";
 
 export type DispatchEvents = (
   types: HandlerName[],
@@ -56,11 +50,19 @@ type BaseChartProps = {
 
 export type CommonChartProps = BaseChartProps & GestureProps;
 
+export type RNGestureHandlerOptions = {
+  panThrottleMs?: number;
+  pinchThrottleMs?: number;
+  longPressMs?: number;
+  onGestureActiveChange?: (active: boolean) => void;
+};
+
 export type SkiaChartProps = CommonChartProps & {
   svg?: string;
   width?: number;
   height?: number;
   style?: ViewStyle;
+  gestureOptions?: RNGestureHandlerOptions;
 };
 
 export type SVGVNodeAttrs = Record<

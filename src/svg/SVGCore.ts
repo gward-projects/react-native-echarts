@@ -1,12 +1,13 @@
 // source from https://github.com/ecomfe/zrender/blob/master/src/svg/core.ts
 // under BSD-3-Clause license
 // add some patch for skia
-import { encodeXML } from 'entities';
+import { encodeXML } from "entities";
 
 export type SVGVNodeAttrs = Record<
   string,
   string | number | undefined | boolean
 >;
+
 export interface SVGVNode {
   tag: string;
   attrs: SVGVNodeAttrs;
@@ -33,7 +34,7 @@ function createElementOpen(name: string, attrs?: SVGVNodeAttrs) {
       attrsStr.push(part);
     }
   }
-  return `<${name} ${attrsStr.join(' ')}>`;
+  return `<${name} ${attrsStr.join(" ")}>`;
 }
 
 function createElementClose(name: string) {
@@ -47,53 +48,55 @@ export function vNodeToString(
   }
 ) {
   opts = opts || {};
-  const S = opts.newline ? '\n' : '';
+  const S = opts.newline ? "\n" : "";
+
   function convertElToString(el: SVGVNode): string {
     const { children, tag, attrs } = el;
-    if (tag === 'path') {
+    if (tag === "path") {
       // fix: https://github.com/Shopify/react-native-skia/issues/888
-      if (attrs['stroke-width'] === 0) {
-        attrs['stroke-opacity'] = 0;
+      if (attrs["stroke-width"] === 0) {
+        attrs["stroke-opacity"] = 0;
       }
       // fix: https://github.com/wuba/react-native-echarts/issues/161
-      if (attrs.fill === 'transparent') {
-        attrs['fill-opacity'] = 0;
+      if (attrs.fill === "transparent") {
+        attrs["fill-opacity"] = 0;
       }
     }
-    if (tag === 'text') {
-      if (typeof attrs.style === 'string') {
+    if (tag === "text") {
+      if (typeof attrs.style === "string") {
         const res = /font(-size)?:([\w\s])*?([0-9]*?)px/.exec(attrs.style);
         const fs = Number(res && res[3]);
         // fix: skia不支持 font:
         if (!res?.[1]) {
-          attrs.style += ';font-size:' + fs + 'px';
+          attrs.style += ";font-size:" + fs + "px";
         }
         // fix: https://github.com/Shopify/react-native-skia/issues/884
-        if (attrs['dominant-baseline'] === 'central') {
+        if (attrs["dominant-baseline"] === "central") {
           const dy = fs / 2 - 2;
           if (attrs.y) {
             attrs.y = Number(attrs.y) + dy;
-            attrs['dominant-baseline'] = 'auto';
+            attrs["dominant-baseline"] = "auto";
           } else if (attrs.transform) {
             attrs.transform = attrs.transform + ` translate(0, ${dy})`;
-            attrs['dominant-baseline'] = 'auto';
+            attrs["dominant-baseline"] = "auto";
           }
         }
       }
       // fix: https://github.com/react-native-svg/react-native-svg/issues/1862
-      if (attrs['paint-order'] === 'stroke') {
-        attrs['stroke-width'] = 0;
+      if (attrs["paint-order"] === "stroke") {
+        attrs["stroke-width"] = 0;
       }
-      el.text = encodeXML(el.text || '');
+      el.text = encodeXML(el.text || "");
     }
     return (
       createElementOpen(tag, attrs) +
-      (el.text || '') +
+      (el.text || "") +
       (children
         ? `${S}${children.map((child) => convertElToString(child)).join(S)}${S}`
-        : '') +
+        : "") +
       createElementClose(tag)
     );
   }
+
   return convertElToString(oel);
 }

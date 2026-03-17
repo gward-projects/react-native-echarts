@@ -1,36 +1,32 @@
-import { memo } from 'react';
-import { RNGestureHandler } from './RNGestureHandler';
-import { PanResponderHandler } from './PanResponderHandler';
-import type { DispatchEvents, GestureProps } from '../types';
+import { PanResponderHandler } from "./PanResponderHandler";
+import { RNGestureHandler } from "./RNGestureHandler";
+import type { DispatchEvents, RNGestureHandlerGesture, RNGestureHandlerOptions } from "../types";
 
-let RNGH: any = null;
-
-type GestureHandlerProps = GestureProps & {
+type GestureHandlerProps = {
+  useRNGH?: boolean;
+  RNGH?: any;
   dispatchEvents: DispatchEvents;
+  gesture?: RNGestureHandlerGesture;
+  gestureOptions?: RNGestureHandlerOptions;
 };
 
-export const GestureHandler = memo(function GestureHandler({
-  dispatchEvents,
-  gesture,
-  useRNGH = false,
-}: GestureHandlerProps) {
+export function GestureHandler({
+                                 useRNGH = false,
+                                 RNGH,
+                                 dispatchEvents,
+                                 gesture,
+                                 gestureOptions
+                               }: GestureHandlerProps) {
   if (useRNGH && RNGH) {
     return (
       <RNGestureHandler
         RNGH={RNGH}
         dispatchEvents={dispatchEvents}
         gesture={gesture}
+        gestureOptions={gestureOptions}
       />
     );
-  } else {
-    return <PanResponderHandler dispatchEvents={dispatchEvents} />;
   }
-});
 
-try {
-  RNGH = require('react-native-gesture-handler');
-} catch (error) {
-  console.warn(
-    'react-native-gesture-handler is not installed. Falling back to PanResponder.'
-  );
+  return <PanResponderHandler dispatchEvents={dispatchEvents} />;
 }

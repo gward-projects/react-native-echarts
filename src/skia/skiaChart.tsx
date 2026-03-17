@@ -1,22 +1,15 @@
-import {
-  useState,
-  useImperativeHandle,
-  forwardRef,
-  memo,
-  useCallback,
-  useRef,
-} from 'react';
-import type { ForwardedRef, ReactElement } from 'react';
+import type { ForwardedRef, ReactElement } from "react";
+import { forwardRef, memo, useCallback, useImperativeHandle, useRef, useState } from "react";
 
-import { Canvas, useCanvasRef } from '@shopify/react-native-skia';
-import { View } from 'react-native';
+import { Canvas, useCanvasRef } from "@shopify/react-native-skia";
+import { View } from "react-native";
 
-import { GestureHandler } from '../components/GestureHandler';
-import { dispatchEventsToZRender } from '../components/events';
-import type { ChartElement, DispatchEvents, SkiaChartProps } from '../types';
+import { GestureHandler } from "../components/GestureHandler";
+import { dispatchEventsToZRender } from "../components/events";
+import type { ChartElement, DispatchEvents, SkiaChartProps } from "../types";
 
-export { SkiaRenderer } from './SkiaRenderer';
-export * from '../types';
+export { SkiaRenderer } from "./SkiaRenderer";
+export * from "../types";
 
 function SkiaComponent(
   props: SkiaChartProps,
@@ -51,15 +44,17 @@ function SkiaComponent(
     () => ({
       elm: {
         setAttribute: (name: string, value: any) => {
-          if (name === 'width') {
+          if (name === "width") {
             setWidth(value);
           }
-          if (name === 'height') {
+          if (name === "height") {
             setHeight(value);
           }
         },
-        setAttributeNS: (_name: string, _value: any) => {},
-        removeAttribute: (_name: string) => {},
+        setAttributeNS: (_name: string, _value: any) => {
+        },
+        removeAttribute: (_name: string) => {
+        },
         patch: (elms: ReactElement[]) => {
           // console.log('patch', elms);
           setChildren(elms);
@@ -72,16 +67,16 @@ function SkiaComponent(
           return image
             ? `data:image/png;base64,${image.encodeToBase64()}`
             : null;
-        },
+        }
       },
       viewprot: {},
       dispatchEvents,
       getChartSize: () => {
         return {
           width: initialWidth,
-          height: initialHeight,
+          height: initialHeight
         };
-      },
+      }
     }),
     [dispatchEvents, initialWidth, initialHeight, canvasRef]
   );
@@ -103,5 +98,5 @@ function SkiaComponent(
 }
 
 const SkiaChart = memo(forwardRef(SkiaComponent));
-SkiaChart.displayName = 'SkiaChart';
+SkiaChart.displayName = "SkiaChart";
 export default SkiaChart;

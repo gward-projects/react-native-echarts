@@ -1,5 +1,5 @@
-import { SkiaPainter } from './painter';
+import { SkiaPainter } from "./painter";
 
 export function SkiaRenderer(registers: any) {
-  registers.registerPainter('skia', SkiaPainter);
+  registers.registerPainter("skia", SkiaPainter);
 }

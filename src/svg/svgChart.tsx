@@ -1,58 +1,41 @@
 import Svg, {
   Circle,
+  ClipPath,
+  Defs,
   Ellipse,
   G,
-  Text,
-  TSpan,
-  TextPath,
+  Image,
+  Line,
+  LinearGradient,
+  Mask,
   Path,
+  Pattern,
   Polygon,
   Polyline,
-  Line,
-  Rect,
-  Use,
-  Image,
-  Symbol,
-  Defs,
-  LinearGradient,
   RadialGradient,
+  Rect,
   Stop,
-  ClipPath,
-  Pattern,
-  Mask,
-} from 'react-native-svg';
+  Symbol,
+  Text,
+  TextPath,
+  TSpan,
+  Use
+} from "react-native-svg";
 
-import {
-  useState,
-  useImperativeHandle,
-  forwardRef,
-  memo,
-  useMemo,
-  useRef,
-  useCallback,
-} from 'react';
+import type { ForwardedRef } from "react";
+import { forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react";
 
-import type { ForwardedRef } from 'react';
+import { Image as RNImage, Platform, View } from "react-native";
 
-import { Platform, View, Image as RNImage } from 'react-native';
-
-import {
-  setPlatformAPI,
-  // DEFAULT_FONT_FAMILY as zrenderFontFamily,
-} from 'zrender/lib/core/platform.js';
-import { measureText } from '../utils/platform';
+import { setPlatformAPI } from "zrender/lib/core/platform.js";
+import { measureText } from "../utils/platform";
 // import { DEFAULT_FONT_FAMILY } from './utils/font';
-import { GestureHandler } from '../components/GestureHandler';
-import { dispatchEventsToZRender } from '../components/events';
-import type {
-  ChartElement,
-  DispatchEvents,
-  SVGChartProps,
-  SVGVNode,
-} from '../types';
+import { GestureHandler } from "../components/GestureHandler";
+import { dispatchEventsToZRender } from "../components/events";
+import type { ChartElement, DispatchEvents, SVGChartProps, SVGVNode } from "../types";
 
-export { SVGRenderer } from './SVGRenderer';
-export * from '../types';
+export { SVGRenderer } from "./SVGRenderer";
+export * from "../types";
 
 setPlatformAPI({ measureText });
 
@@ -78,7 +61,7 @@ const tagMap = {
   stop: Stop,
   clipPath: ClipPath,
   pattern: Pattern,
-  mask: Mask,
+  mask: Mask
 };
 
 const imageSizeMap: any = {};
@@ -103,13 +86,13 @@ async function imageInit(url: string) {
   const { width, height } = await getImageSize(url);
   imageSizeMap[url] = {
     width,
-    height,
+    height
   };
 }
 
 function toCamelCase(str: string) {
   var reg = /-(\w)/g;
-  return str.replace(reg, function (_: any, $1: string) {
+  return str.replace(reg, function(_: any, $1: string) {
     return $1.toUpperCase();
   });
 }
@@ -122,6 +105,7 @@ interface SVGVEleProps {
 }
 
 const fontStyleReg = /([\w-]+):([\w-]+)/;
+
 function SvgEle(props: SVGVEleProps) {
   const { node } = props;
   if (!node) return null;
@@ -137,36 +121,36 @@ function SvgEle(props: SVGVEleProps) {
     },
     {} as Record<string, any>
   );
-  if (tag === 'text') {
+  if (tag === "text") {
     if (attrs.style) {
       // TODO: 全局替换字体做法比较暴力，或者实用定义字体，可能某些场景字体设置失效，需要修复
       // attrs.style = attrs.style.replace(new RegExp(zrenderFontFamily, 'g'), DEFAULT_FONT_FAMILY);
 
-      const matches = attrs.style.split(';');
+      const matches = attrs.style.split(";");
       matches
         .filter((match: string) => fontStyleReg.test(match))
         .forEach((match: string) => {
-          const parts = match.split(':');
+          const parts = match.split(":");
           const key = parts[0]?.trim();
           let value = parts[1]?.trim();
           if (key) {
             // echart里默认字体sans-serif，ios无法识别
             if (
-              Platform.OS === 'ios' &&
-              key === 'font-family' &&
-              value === 'sans-serif'
+              Platform.OS === "ios" &&
+              key === "font-family" &&
+              value === "sans-serif"
             ) {
-              value = 'Helvetica Neue';
+              value = "Helvetica Neue";
             }
             attrs[toCamelCase(key)] = value;
           }
         });
     }
     if (!attrs.alignmentBaseline && attrs.dominantBaseline) {
-      attrs.alignmentBaseline = 'middle';
+      attrs.alignmentBaseline = "middle";
     }
     // fix: https://github.com/react-native-svg/react-native-svg/issues/1862
-    if (attrs.paintOrder === 'stroke') {
+    if (attrs.paintOrder === "stroke") {
       attrs.strokeWidth = 0;
     }
     // fixed svg fillOpacity bug in some render processes
@@ -176,28 +160,28 @@ function SvgEle(props: SVGVEleProps) {
     return <Text {...attrs}>{text}</Text>;
   }
   // fix: https://github.com/react-native-svg/react-native-svg/issues/983
-  if (attrs.clipPath && !attrs.clipRule && Platform.OS === 'android') {
-    attrs.clipRule = 'nonzero';
+  if (attrs.clipPath && !attrs.clipRule && Platform.OS === "android") {
+    attrs.clipRule = "nonzero";
   }
-  if (tag === 'path') {
+  if (tag === "path") {
     // 全部数据为空，iOS渲染有问题，无效的path过滤掉
     if (!attrs.d) return null;
     return <Path {...attrs} />;
   }
-  if (tag === 'linearGradient' || tag === 'radialGradient') {
+  if (tag === "linearGradient" || tag === "radialGradient") {
     // note: 强制刷新渐变
     // https://github.com/software-mansion/react-native-svg/issues/1762
     return (
       <Tag {...attrs}>
         {children?.map((child) =>
           SvgEle({
-            node: child,
+            node: child
           })
         )}
       </Tag>
     );
   }
-  if (tag === 'image' && !attrs.width) {
+  if (tag === "image" && !attrs.width) {
     if (imageSizeMap[attrs.href]) {
       const { width, height } = imageSizeMap[attrs.href];
       attrs.width = (attrs.height / height) * width;
@@ -263,23 +247,26 @@ function SvgComponent(
     ref,
     () => ({
       elm: {
-        setAttribute: (_name: string, _value: any) => {},
-        setAttributeNS: (_name: string, _value: any) => {},
-        removeAttribute: (_name: string) => {},
+        setAttribute: (_name: string, _value: any) => {
+        },
+        setAttributeNS: (_name: string, _value: any) => {
+        },
+        removeAttribute: (_name: string) => {
+        },
         patch: (_oldVnode: SVGVNode, vnode: SVGVNode) => {
           setSvgNode(vnode);
         },
         setZrenderId: (id: number) => {
           zrenderId.current = id;
-        },
+        }
       },
       dispatchEvents,
       getChartSize: () => {
         return {
           width,
-          height,
+          height
         };
-      },
+      }
     }),
     [dispatchEvents, width, height]
   );
@@ -295,5 +282,5 @@ function SvgComponent(
 }
 
 const SvgChart = memo(forwardRef(SvgComponent));
-SvgChart.displayName = 'SvgChart';
+SvgChart.displayName = "SvgChart";
 export default SvgChart;

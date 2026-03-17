@@ -1,58 +1,43 @@
-import Displayable from 'zrender/lib/graphic/Displayable.js';
-import type { BrushScope } from './core';
-import { DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE } from '../utils/font';
-import Path from 'zrender/lib/graphic/Path.js';
-import type { PathStyleProps } from 'zrender/lib/graphic/Path.js';
-import ZRImage from 'zrender/lib/graphic/Image.js';
-import type { ImageStyleProps } from 'zrender/lib/graphic/Image.js';
-import TSpan from 'zrender/lib/graphic/TSpan.js';
-import type { TSpanStyleProps } from 'zrender/lib/graphic/TSpan.js';
-import type { MatrixArray } from 'zrender/lib/core/matrix.js';
-import type { GradientObject } from 'zrender/lib/graphic/Gradient.js';
+import Displayable from "zrender/lib/graphic/Displayable.js";
+import type { BrushScope } from "./core";
+import { DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE } from "../utils/font";
+import type { PathStyleProps } from "zrender/lib/graphic/Path.js";
+import Path from "zrender/lib/graphic/Path.js";
+import type { ImageStyleProps } from "zrender/lib/graphic/Image.js";
+import ZRImage from "zrender/lib/graphic/Image.js";
+import type { TSpanStyleProps } from "zrender/lib/graphic/TSpan.js";
+import TSpan from "zrender/lib/graphic/TSpan.js";
+import type { MatrixArray } from "zrender/lib/core/matrix.js";
+import type { GradientObject } from "zrender/lib/graphic/Gradient.js";
+import { isFunction, isString, logError, retrieve2 } from "zrender/lib/core/util";
+import { getLineDash } from "zrender/lib/canvas/dashStyle.js";
+import { hasShadow, isGradient, isLinearGradient, isPattern, isRadialGradient } from "zrender/lib/svg/helper.js";
+import SkiaPathRebuilder from "./SkiaPathRebuilder";
+import type { ReactElement } from "react";
+import mapStyleToAttrs from "zrender/lib/svg/mapStyleToAttrs.js";
+import type { ImageProps, SkiaProps, SkPath, Transforms3d } from "@shopify/react-native-skia";
 import {
-  isString,
-  isFunction,
-  logError,
-  retrieve2,
-} from 'zrender/lib/core/util';
-import { getLineDash } from 'zrender/lib/canvas/dashStyle.js';
-import {
-  isGradient,
-  isPattern,
-  hasShadow,
-  isRadialGradient,
-  isLinearGradient,
-} from 'zrender/lib/svg/helper.js';
-import SkiaPathRebuilder from './SkiaPathRebuilder';
-import type { ReactElement } from 'react';
-import mapStyleToAttrs from 'zrender/lib/svg/mapStyleToAttrs.js';
-import {
-  Skia,
-  Path as SkiaPath,
-  Shadow,
-  useImage,
+  FontSlant,
+  FontWeight,
   Image,
   LinearGradient,
-  RadialGradient,
-  processTransform3d,
   Matrix4,
   Paragraph,
-  FontWeight,
-  FontSlant,
-} from '@shopify/react-native-skia';
-import type {
-  Transforms3d,
-  SkPath,
-  SkiaProps,
-  ImageProps,
-} from '@shopify/react-native-skia';
+  Path as SkiaPath,
+  processTransform3d,
+  RadialGradient,
+  Shadow,
+  Skia,
+  useImage
+} from "@shopify/react-native-skia";
 
 function isImageLike(val: unknown): val is HTMLImageElement {
-  return val != null && typeof val === 'object' && isString((val as any).src);
+  return val != null && typeof val === "object" && isString((val as any).src);
 }
+
 function isCanvasLike(val: unknown): val is HTMLCanvasElement {
   return (
-    val != null && typeof val === 'object' && isFunction((val as any).toDataURL)
+    val != null && typeof val === "object" && isFunction((val as any).toDataURL)
   );
 }
 
@@ -76,7 +61,7 @@ function setStyleAttrs(
 ) {
   mapStyleToAttrs(
     (key, val) => {
-      const isFillStroke = key === 'fill' || key === 'stroke';
+      const isFillStroke = key === "fill" || key === "stroke";
       if (isFillStroke && isGradient(val)) {
         setGradient(style, attrs, key);
       } else if (isFillStroke && isPattern(val)) {
@@ -84,11 +69,11 @@ function setStyleAttrs(
       } else {
         attrs[key] = val;
       }
-      if (isFillStroke && scope.ssr && val === 'none') {
+      if (isFillStroke && scope.ssr && val === "none") {
         // When is none, it cannot be interacted when ssr
         // Setting `pointer-events` as `visible` to make it responding
         // See also https://www.w3.org/TR/SVG/interact.html#PointerEventsProperty
-        attrs['pointer-events'] = 'visible';
+        attrs["pointer-events"] = "visible";
       }
     },
     style,
@@ -140,8 +125,8 @@ function getTransform(m: MatrixArray): Transforms3d | undefined {
   if (m) {
     return [
       {
-        matrix: convertSvgMatrixToMatrix4(m),
-      },
+        matrix: convertSvgMatrixToMatrix4(m)
+      }
     ];
   }
   return;
@@ -217,7 +202,7 @@ export function brushSVGPath(
   const transform = getTransform(el.transform);
   const p = buildPath(
     el,
-    typeof attrs.fill === 'string' || typeof attrs.stroke === 'string'
+    typeof attrs.fill === "string" || typeof attrs.stroke === "string"
       ? transform
       : undefined
   );
@@ -225,17 +210,17 @@ export function brushSVGPath(
   setStyleAttrs(attrs, style, el, scope);
   const shadow = getShadow(el);
   let paths: ReactElement[] = [];
-  if (attrs.fill && attrs.fill !== 'none') {
+  if (attrs.fill && attrs.fill !== "none") {
     const effects: ReactElement[] = [];
     if (shadow) effects.push(shadow);
-    const fillEffect = typeof attrs.fill === 'string' ? null : attrs.fill;
+    const fillEffect = typeof attrs.fill === "string" ? null : attrs.fill;
     if (fillEffect) effects.push(fillEffect as ReactElement);
     paths.push(
       <SkiaPath
-        opacity={(attrs['fill-opacity'] as number) ?? 1}
+        opacity={(attrs["fill-opacity"] as number) ?? 1}
         key={`f-${el.id}`}
         path={p}
-        color={typeof attrs.fill === 'string' ? attrs.fill : undefined}
+        color={typeof attrs.fill === "string" ? attrs.fill : undefined}
         style="fill"
         transform={transform}
       >
@@ -243,7 +228,7 @@ export function brushSVGPath(
       </SkiaPath>
     );
   }
-  if (attrs.stroke && attrs['stroke-width'] !== 0) {
+  if (attrs.stroke && attrs["stroke-width"] !== 0) {
     const effects: ReactElement[] = [];
     if (shadow) effects.push(shadow);
     if (style.lineDash) {
@@ -251,17 +236,17 @@ export function brushSVGPath(
       if (lineDash) p.dash(lineDash[0] || 0, lineDash[1] || 0, lineDashOffset);
     }
     const strokeColor =
-      typeof attrs.stroke === 'string' ? attrs.stroke : undefined;
+      typeof attrs.stroke === "string" ? attrs.stroke : undefined;
     if (!strokeColor) {
       effects.push(attrs.stroke as ReactElement);
     }
     paths.push(
       <SkiaPath
-        opacity={(attrs['stroke-opacity'] as number) ?? 1}
-        strokeMiter={attrs['stroke-miterlimit'] as number}
-        strokeCap={attrs['stroke-linecap'] as any}
-        strokeJoin={attrs['stroke-linejoin'] as any}
-        strokeWidth={(attrs['stroke-width'] as number) ?? 1}
+        opacity={(attrs["stroke-opacity"] as number) ?? 1}
+        strokeMiter={attrs["stroke-miterlimit"] as number}
+        strokeCap={attrs["stroke-linecap"] as any}
+        strokeJoin={attrs["stroke-linejoin"] as any}
+        strokeWidth={(attrs["stroke-width"] as number) ?? 1}
         transform={transform}
         key={`s-${el.id}`}
         path={p}
@@ -327,17 +312,19 @@ export function brushSVGImage(
     </SkiaImage>
   );
 }
+
 type CustomImageProps = SkiaProps<ImageProps> & {
   href: string;
   height?: number;
   width?: number;
   children?: ReactElement[];
 };
+
 function SkiaImage({ href, children, ...attrs }: CustomImageProps) {
   let skiaImage = useImage(href);
   // Base64 image
-  if (href.indexOf(';base64') > -1) {
-    const base64Data = href.split(',')[1] || '';
+  if (href.indexOf(";base64") > -1) {
+    const base64Data = href.split(",")[1] || "";
     const binaryData = Skia.Data.fromBase64(base64Data);
     skiaImage = Skia.Image.MakeImageFromEncoded(binaryData);
   }
@@ -354,27 +341,27 @@ function SkiaImage({ href, children, ...attrs }: CustomImageProps) {
   );
 }
 
-const createFontSlant = (fontStyle: TSpanStyleProps['fontStyle']) => {
+const createFontSlant = (fontStyle: TSpanStyleProps["fontStyle"]) => {
   switch (fontStyle) {
-    case 'italic':
+    case "italic":
       return FontSlant.Italic;
-    case 'oblique':
+    case "oblique":
       return FontSlant.Oblique;
     default:
       return FontSlant.Upright;
   }
 };
 
-const createFontWeight = (fontWeight: TSpanStyleProps['fontWeight']) => {
-  if (typeof fontWeight === 'string') {
+const createFontWeight = (fontWeight: TSpanStyleProps["fontWeight"]) => {
+  if (typeof fontWeight === "string") {
     switch (fontWeight) {
-      case 'normal':
+      case "normal":
         return FontWeight.Normal;
-      case 'bold':
+      case "bold":
         return FontWeight.Bold;
-      case 'bolder':
+      case "bolder":
         return FontWeight.ExtraBold;
-      case 'lighter':
+      case "lighter":
         return FontWeight.Light;
       default:
         return parseInt(fontWeight, 10);
@@ -392,12 +379,12 @@ export function brushSVGTSpan(
     y = 0,
     fontFamily = DEFAULT_FONT_FAMILY,
     fontSize = DEFAULT_FONT_SIZE,
-    fontStyle = 'normal',
-    fontWeight = 'normal',
+    fontStyle = "normal",
+    fontWeight = "normal",
     text,
     fill,
     textAlign,
-    textBaseline,
+    textBaseline
   } = el.style;
   if (!text) return null;
   const attrs: SVGVNodeAttrs = {};
@@ -410,12 +397,12 @@ export function brushSVGTSpan(
       heightMultiplier: 1,
       fontFamilies: [fontFamily],
       fontSize:
-        typeof fontSize === 'string' ? parseInt(fontSize, 10) : fontSize,
-      color: typeof fill === 'string' ? Skia.Color(fill) : undefined,
+        typeof fontSize === "string" ? parseInt(fontSize, 10) : fontSize,
+      color: typeof fill === "string" ? Skia.Color(fill) : undefined,
       fontStyle: {
         weight: createFontWeight(fontWeight),
-        slant: createFontSlant(fontStyle),
-      },
+        slant: createFontSlant(fontStyle)
+      }
     })
     .addText(text)
     .build();
@@ -423,19 +410,19 @@ export function brushSVGTSpan(
   const textHeight = para.getHeight();
   const textWidth = para.getLongestLine();
   const adjustX =
-    textAlign === 'center'
+    textAlign === "center"
       ? -textWidth / 2
-      : textAlign === 'start' || textAlign === 'left'
+      : textAlign === "start" || textAlign === "left"
         ? 0
         : -textWidth;
   const adjustY =
-    textBaseline === 'middle'
+    textBaseline === "middle"
       ? -textHeight / 2
-      : textBaseline === 'top'
+      : textBaseline === "top"
         ? 0
         : -textHeight;
-  if (attrs['fill-opacity'] !== undefined) {
-    attrs.opacity = attrs['fill-opacity'];
+  if (attrs["fill-opacity"] !== undefined) {
+    attrs.opacity = attrs["fill-opacity"];
   }
   return (
     <Paragraph
@@ -453,7 +440,7 @@ export function brushSVGTSpan(
 export function setGradient(
   style: PathStyleProps,
   attrs: SVGVNodeAttrs,
-  target: 'fill' | 'stroke'
+  target: "fill" | "stroke"
 ) {
   const val = style[target] as GradientObject;
   const colors = val.colorStops.map((c) => c.color);
@@ -461,21 +448,21 @@ export function setGradient(
   if (isLinearGradient(val)) {
     let start = {
       x: val.x,
-      y: val.y,
+      y: val.y
     };
     let end = {
       x: val.x2,
-      y: val.y2,
+      y: val.y2
     };
     if (!val.global) {
       const { width, height, x, y } = (attrs.path as SkPath)?.getBounds();
       start = {
         x: start.x * width + x,
-        y: start.y * height + y,
+        y: start.y * height + y
       };
       end = {
         x: end.x * width + x,
-        y: end.y * height + y,
+        y: end.y * height + y
       };
     }
     attrs[target] = (
@@ -493,7 +480,7 @@ export function setGradient(
         key="rg"
         c={{
           x: retrieve2(val.x, 0.5),
-          y: retrieve2(val.y, 0.5),
+          y: retrieve2(val.y, 0.5)
         }}
         r={retrieve2(val.r, 0.5)}
         colors={colors}
@@ -501,12 +488,13 @@ export function setGradient(
       />
     );
   } else {
-    if (process.env.NODE_ENV !== 'production') {
-      logError('Illegal gradient type.');
+    if (process.env.NODE_ENV !== "production") {
+      logError("Illegal gradient type.");
     }
     return;
   }
 }
+
 export function getClipPath(clipPath: Path | undefined, scope: BrushScope) {
   if (!clipPath) {
     return;

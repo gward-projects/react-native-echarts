@@ -1,16 +1,17 @@
-import type { PatternObject } from 'zrender/lib/graphic/Pattern.js';
-import type { GradientObject } from 'zrender/lib/graphic/Gradient.js';
-import type { BrushScope } from './core';
-import Displayable from 'zrender/lib/graphic/Displayable.js';
-import Path from 'zrender/lib/graphic/Path.js';
-import type { PainterBase } from 'zrender/lib/PainterBase.js';
-import type Storage from 'zrender/lib/Storage';
-import { logError } from 'zrender/lib/core/util';
-import { isGradient, isPattern } from 'zrender/lib/svg/helper.js';
-import { createBrushScope } from './core';
-import { brush, getClipPath, setGradient } from './graphic';
-import type { ReactElement } from 'react';
-import { Group, Rect } from '@shopify/react-native-skia';
+import type { PatternObject } from "zrender/lib/graphic/Pattern.js";
+import type { GradientObject } from "zrender/lib/graphic/Gradient.js";
+import type { BrushScope } from "./core";
+import { createBrushScope } from "./core";
+import Displayable from "zrender/lib/graphic/Displayable.js";
+import Path from "zrender/lib/graphic/Path.js";
+import type { PainterBase } from "zrender/lib/PainterBase.js";
+import type Storage from "zrender/lib/Storage";
+import { logError } from "zrender/lib/core/util";
+import { isGradient, isPattern } from "zrender/lib/svg/helper.js";
+import { brush, getClipPath, setGradient } from "./graphic";
+import type { ReactElement } from "react";
+import { Group, Rect } from "@shopify/react-native-skia";
+
 let svgId = 0;
 
 interface SVGPainterOption {
@@ -18,6 +19,7 @@ interface SVGPainterOption {
   height?: number;
   ssr?: boolean;
 }
+
 type SVGPainterBackgroundColor = string | GradientObject | PatternObject;
 
 interface RootProps extends HTMLElement {
@@ -28,14 +30,21 @@ interface RootProps extends HTMLElement {
 }
 
 export class SkiaPainter implements PainterBase {
-  type: string = 'svg';
+  type: string = "svg";
   root: HTMLElement;
   storage: Storage;
+  refreshHover = createMethodNotSupport(
+    "refreshHover"
+  ) as PainterBase["refreshHover"];
+  configLayer = createMethodNotSupport(
+    "configLayer"
+  ) as PainterBase["configLayer"];
   private _id: string;
   private _width: number;
   private _height: number;
   private _svgDom: any;
-  private _backgroundColor: SVGPainterBackgroundColor = 'none';
+  private _backgroundColor: SVGPainterBackgroundColor = "none";
+
   constructor(
     root: RootProps,
     storage: Storage,
@@ -44,7 +53,7 @@ export class SkiaPainter implements PainterBase {
   ) {
     this.root = root;
     this.storage = storage;
-    this._id = 'zr' + svgId++;
+    this._id = "zr" + svgId++;
     // @ts-ignore
     this._svgDom = root.elm;
     this._svgDom.setZrenderId?.(id);
@@ -52,19 +61,24 @@ export class SkiaPainter implements PainterBase {
     this._height = 0;
     this.resize(opts.width ?? 0, opts.height ?? 0);
   }
+
   getType() {
     return this.type;
   }
+
   setBackgroundColor(backgroundColor: SVGPainterBackgroundColor): void {
     this._backgroundColor = backgroundColor;
   }
+
   getViewportRoot: () => HTMLElement = () => {
     return this.root as HTMLElement;
   };
+
   getViewportRootOffset: () => { offsetLeft: number; offsetTop: number } =
     () => {
       return { offsetLeft: 0, offsetTop: 0 };
     };
+
   refresh(): void {
     const scope = createBrushScope(this._id);
     const list = this.storage.getDisplayList(true);
@@ -82,6 +96,7 @@ export class SkiaPainter implements PainterBase {
     // @ts-ignore
     this.root.elm.patch(children);
   }
+
   _paintList(list: Displayable[], scope: BrushScope, out?: ReactElement[]) {
     const clipPathsGroupsStack: any[] = [];
     const outGroups: any[] = [];
@@ -116,10 +131,10 @@ export class SkiaPainter implements PainterBase {
         for (let i = lca + 1; i < len; i++) {
           const clip = clipPaths && getClipPath(clipPaths[i], scope);
           const g = {
-            id: 'clip-g-' + clipGroupNodeIdx++,
+            id: "clip-g-" + clipGroupNodeIdx++,
             clip,
             children: [],
-            index: out?.length,
+            index: out?.length
           };
           clipPathsGroupsStack[clipPathsGroupsStackDepth++] = g;
           outGroups.push(g);
@@ -151,38 +166,40 @@ export class SkiaPainter implements PainterBase {
       );
     }
   }
-  clear(): void {}
+
+  clear(): void {
+  }
+
   toDataURL(): string {
     return this._svgDom.makeImageSnapshot?.();
   }
+
   resize(width: number, height: number) {
     if (this._width !== width || this._height !== height) {
       this._width = width;
       this._height = height;
-      this._svgDom.setAttribute('width', width);
-      this._svgDom.setAttribute('height', height);
+      this._svgDom.setAttribute("width", width);
+      this._svgDom.setAttribute("height", height);
     }
   }
-  dispose(): void {}
+
+  dispose(): void {
+  }
+
   getWidth() {
     return this._width;
   }
+
   getHeight() {
     return this._height;
   }
-  refreshHover = createMethodNotSupport(
-    'refreshHover'
-  ) as PainterBase['refreshHover'];
-  configLayer = createMethodNotSupport(
-    'configLayer'
-  ) as PainterBase['configLayer'];
 }
 
 // Not supported methods
 function createMethodNotSupport(method: string): any {
-  return function () {
-    if (process.env.NODE_ENV !== 'production') {
-      logError('In SVG mode painter not support method "' + method + '"');
+  return function() {
+    if (process.env.NODE_ENV !== "production") {
+      logError("In SVG mode painter not support method \"" + method + "\"");
     }
   };
 }
@@ -194,16 +211,16 @@ function createBackgroundVNode(
   _scope: BrushScope
 ) {
   let bgVNode;
-  if (backgroundColor && backgroundColor !== 'none') {
+  if (backgroundColor && backgroundColor !== "none") {
     const attrs: Record<string, string | number | boolean> = {};
     if (isGradient(backgroundColor)) {
-      setGradient({ fill: backgroundColor as any }, attrs, 'fill');
+      setGradient({ fill: backgroundColor as any }, attrs, "fill");
     } else if (isPattern(backgroundColor)) {
       // todo
     } else {
       attrs.fill = backgroundColor;
     }
-    if (typeof attrs.fill === 'string') {
+    if (typeof attrs.fill === "string") {
       return (
         <Rect
           key="bg"

@@ -1,9 +1,8 @@
-import { View } from 'react-native';
-import { useMemo } from 'react';
-import { PanResponder } from 'react-native';
-import type { PanResponderInstance, NativeTouchEvent } from 'react-native';
-import { styles } from './styles';
-import type { DispatchEvents } from '../types';
+import type { NativeTouchEvent, PanResponderInstance } from "react-native";
+import { PanResponder, View } from "react-native";
+import { useMemo } from "react";
+import { styles } from "./styles";
+import type { DispatchEvents } from "../types";
 
 export function calcDistance(x0: number, y0: number, x1: number, y1: number) {
   const dx = x0 - x1;
@@ -18,7 +17,7 @@ function calMiddle(p0: number, p1: number) {
 export function calcCenter(x0: number, y0: number, x1: number, y1: number) {
   return {
     x: calMiddle(x1, x0),
-    y: calMiddle(y1, y0),
+    y: calMiddle(y1, y0)
   };
 }
 
@@ -27,8 +26,8 @@ type PanResponderHandlerProps = {
 };
 
 export function PanResponderHandler({
-  dispatchEvents,
-}: PanResponderHandlerProps) {
+                                      dispatchEvents
+                                    }: PanResponderHandlerProps) {
   const [panResponder] = usePanResponder(dispatchEvents);
   return (
     <View
@@ -48,7 +47,7 @@ export function usePanResponder(
     let pan = {
       initialX: 0,
       initialY: 0,
-      prevDistance: 0,
+      prevDistance: 0
     };
     return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -56,7 +55,7 @@ export function usePanResponder(
       onMoveShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponderCapture: () => true,
       onPanResponderGrant: ({ nativeEvent }) => {
-        dispatchEvents(['mousedown', 'mousemove'], nativeEvent);
+        dispatchEvents(["mousedown", "mousemove"], nativeEvent);
       },
       onPanResponderMove: ({ nativeEvent }) => {
         const touches = nativeEvent.touches;
@@ -66,12 +65,12 @@ export function usePanResponder(
             moving = true;
             zooming = false;
           } else {
-            dispatchEvents(['mousemove'], nativeEvent);
+            dispatchEvents(["mousemove"], nativeEvent);
           }
         } else if (length === 2) {
           const [
             { locationX: x0, locationY: y0 },
-            { locationX: x1, locationY: y1 },
+            { locationX: x1, locationY: y1 }
           ] = touches as [NativeTouchEvent, NativeTouchEvent];
           const distance = calcDistance(x0, y0, x1, y1);
           const { x, y } = calcCenter(x0, y0, x1, y1);
@@ -79,17 +78,17 @@ export function usePanResponder(
             pan = {
               initialX: x,
               initialY: y,
-              prevDistance: distance,
+              prevDistance: distance
             };
             zooming = true;
           } else {
             const { initialX, initialY, prevDistance } = pan;
             const delta = distance - prevDistance;
             pan.prevDistance = distance;
-            dispatchEvents(['mousewheel'], nativeEvent, {
+            dispatchEvents(["mousewheel"], nativeEvent, {
               zrX: initialX,
               zrY: initialY,
-              zrDelta: delta / 120,
+              zrDelta: delta / 120
             });
           }
         }
@@ -97,15 +96,16 @@ export function usePanResponder(
       onPanResponderTerminationRequest: () => true,
       onPanResponderRelease: ({ nativeEvent }) => {
         if (!zooming) {
-          dispatchEvents(['mouseup', 'click'], nativeEvent);
+          dispatchEvents(["mouseup", "click"], nativeEvent);
         }
         moving = false;
         zooming = false;
       },
-      onPanResponderTerminate: () => {},
+      onPanResponderTerminate: () => {
+      },
       onShouldBlockNativeResponder: () => {
         return false;
-      },
+      }
     });
   }, [dispatchEvents]);
   return [panResponder];

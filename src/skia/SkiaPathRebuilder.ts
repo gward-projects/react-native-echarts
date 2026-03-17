@@ -1,7 +1,7 @@
-import type { PathRebuilder } from 'zrender/lib/core/PathProxy.js';
-import { Skia } from '@shopify/react-native-skia';
-import type { SkPath } from '@shopify/react-native-skia';
-import { isAroundZero } from './helper';
+import type { PathRebuilder } from "zrender/lib/core/PathProxy.js";
+import type { SkPath } from "@shopify/react-native-skia";
+import { Skia } from "@shopify/react-native-skia";
+import { isAroundZero } from "./helper";
 
 const PI = Math.PI;
 const PI2 = Math.PI * 2;
@@ -75,7 +75,7 @@ export default class SkiaPathRebuilder implements PathRebuilder {
         x: x - radiusX,
         y: y - radiusY,
         width: radiusX * 2,
-        height: radiusY * 2,
+        height: radiusY * 2
       };
       this.path.addOval(ovalRect, anticlockwise);
     } else {
@@ -96,7 +96,7 @@ export default class SkiaPathRebuilder implements PathRebuilder {
       x,
       y,
       width,
-      height,
+      height
     });
   }
 

@@ -1,10 +1,12 @@
 export type CSSSelectorVNode = Record<string, string>;
 export type CSSAnimationVNode = Record<string, Record<string, string>>;
-import type { SkPath } from '@shopify/react-native-skia';
+import type { SkPath } from "@shopify/react-native-skia";
+
 export type SVGVNodeAttrs = Record<
   string,
   string | number | undefined | boolean
 >;
+
 export interface SVGVNode {
   tag: string;
   attrs: SVGVNodeAttrs;
@@ -15,6 +17,7 @@ export interface SVGVNode {
   elm?: Node;
   key: string;
 }
+
 export interface BrushScope {
   zrId: string;
 
@@ -79,6 +82,6 @@ export function createBrushScope(zrId: string): BrushScope {
     shadowIdx: 0,
     gradientIdx: 0,
     patternIdx: 0,
-    clipPathIdx: 0,
+    clipPathIdx: 0
   };
 }
